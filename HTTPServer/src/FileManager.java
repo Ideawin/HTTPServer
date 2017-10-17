@@ -68,7 +68,7 @@ public class FileManager {
 	 * @throws NotAbsoluteFilePathException 
 	 * @throws FileAccessDeniedException 
 	 */
-	public String getFile(File file) throws NotAbsoluteFilePathException, IOException, FileAccessDeniedException {
+	public String getFile(File file) throws NotAbsoluteFilePathException, IOException, FileAccessDeniedException, FileNotFoundException {
 		
 		if(file == null || !file.exists() || !file.isFile()) {
 			throw new FileNotFoundException("File " + file.getName() + " is not found, or is not a file.");
@@ -100,7 +100,7 @@ public class FileManager {
 	 * @throws NotAbsoluteFilePathException 
 	 * @throws Exception 
 	 */
-	public void writeFile(File file, String fileContent, boolean append) throws NotAbsoluteFilePathException, FileAccessDeniedException, IOException {
+	public void writeFile(File file, String fileContent, boolean append) throws NotAbsoluteFilePathException, FileAccessDeniedException, FileNotFoundException, IOException {
 		
 		if(file == null) {
 			throw new FileNotFoundException("File is null");
