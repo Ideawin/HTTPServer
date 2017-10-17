@@ -13,14 +13,13 @@ import java.nio.file.Paths;
 public class FileManager {
 	
 	HashMap <String,String> currentDirectories;
-	final String DEFAULTDIRECTORY = "/COMP445";
-	private FileManager instance;
+	private static FileManager instance;
 	
 	/**
 	 * Get instance of a Singleton
 	 * @return
 	 */
-	public FileManager getInstance() {
+	public static FileManager getInstance() {
 		if (instance == null)
 			instance = new FileManager();
 		return instance;
@@ -59,7 +58,7 @@ public class FileManager {
 	 * @return content of the file as a String value
 	 */
 	String getFile(String fileName, String dir) {
-		String filePath = DEFAULTDIRECTORY + dir + fileName;
+		String filePath = dir;
 		// For example /COMP445/directory/test.txt
 		
 		try {
