@@ -50,12 +50,12 @@ public class HTTPRequestHandler {
 			getRequest(strArr[0]);
 			// Get all the headers
 			getHeaders(strArr);
+			return parseRequest();
 		}
-    	return "";
     }
     
     /**
-     * Method to parse the request and set the attributes to the corresponding value
+     * Method to get the request line and set the attributes to the corresponding value
      * @param request request line as a String value
      */
     public void getRequest(String request) {
@@ -76,6 +76,11 @@ public class HTTPRequestHandler {
 		}
     }
     
-    
+    /**
+     * Method that will generate a response to the request
+     */
+    public String parseRequest() {
+    	return "";
+    }
 
 }
