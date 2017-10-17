@@ -1,4 +1,14 @@
-import static java.util.Arrays.asList;
+import static java.nio.channels.SelectionKey.OP_ACCEPT;
+import static java.nio.channels.SelectionKey.OP_READ;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -11,8 +21,14 @@ import joptsimple.OptionSet;
  */
 public class HTTPServer {
 
-	// Default port that the server will listen and server
+	// Default port that the server will listen and serve
 	public static final int DEFAULT_PORT = 8080;
+	public static final String DEFAULT_HOST = "http://localhost/";
+	public static final String DEFAULT_DIRECTORY = "/COMP445";
+	// Attributes of HTTPServer
+	public int port = DEFAULT_PORT;
+	public boolean verbose = false;
+	public String directory = "";
 	
 	// Various arguments accepted by the parser
 	public static final String ARG_VERBOSE = "v";
@@ -20,10 +36,117 @@ public class HTTPServer {
 	public static final String ARG_DIRECTORY = "d";
 	
 	/**
+	 * Constructor
+	 * @param verbose
+	 * @param port
+	 * @param directory
+	 */
+	public HTTPServer(boolean verbose, int port, String directory) {
+		this.verbose = verbose;
+		this.port = port;
+		this.directory = directory;
+	}
+	
+	// Uses a single buffer to demonstrate that all clients are running in a single thread
+    private final ByteBuffer buffer = ByteBuffer.allocate(1024);
+    
+    /**
+     * Method to read the buffer and get the request as a String
+     * @param s
+     */
+    private void readAndGetRequest(SelectionKey s) {
+        SocketChannel client = (SocketChannel) s.channel();
+        try {
+            for (; ; ) {
+                int n = client.read(buffer);
+                // If the number of bytes read is -1, the peer is closed
+                if (n == -1) {
+                    unregisterClient(s);
+                    return;
+                }
+                if (n == 0) {
+                    return;
+                }
+                // ByteBuffer is tricky, you have to flip when switch from read to write, or vice-versa
+                buffer.flip();
+                
+                // Convert buffer into a string
+                String request = buffer.toString();
+                
+                // Handle request
+            	HTTPRequestHandler requestHandler = new HTTPRequestHandler(verbose, port, directory);
+            	
+            	String response = requestHandler.handleRequest(request);
+            	
+            	// Write response to the socket using a buffer
+                Charset utf8 = StandardCharsets.UTF_8;
+            	buffer.put(utf8.encode(response)); // encode string response into utf8 and add to buffer
+                client.write(buffer); // write buffer to the socket
+                buffer.clear();
+            }
+        } catch (IOException e) {
+            unregisterClient(s);
+            System.out.println("Failed to receive/send data");
+        }
+    }
+
+    private void newClient(ServerSocketChannel server, Selector selector) {
+        try {
+            SocketChannel client = server.accept();
+            client.configureBlocking(false);
+            System.out.println("New client from {" +  client.getRemoteAddress() + "}");
+            client.register(selector, OP_READ, client);
+        } catch (IOException e) {
+        	System.out.println("Failed to accept client");
+        }
+    }
+
+    private void unregisterClient(SelectionKey s) {
+        try {
+            s.cancel();
+            s.channel().close();
+        } catch (IOException e) {
+        	System.out.println("Failed to clean up");
+        }
+    }
+
+    private void runLoop(ServerSocketChannel server, Selector selector) throws IOException {
+        // Check if there is any event (eg. new client or new data) happened
+        selector.select();
+
+        for (SelectionKey s : selector.selectedKeys()) {
+            // Acceptable means there is a new incoming
+            if (s.isAcceptable()) {
+                newClient(server, selector);
+
+            // Readable means this client has sent data or closed
+            } else if (s.isReadable()) {
+            	readAndGetRequest(s);
+            }
+        }
+        // We must clear this set, otherwise the select will return the same value again
+        selector.selectedKeys().clear();
+    }
+    
+    private void listenAndServe() throws IOException {
+        try (ServerSocketChannel server = ServerSocketChannel.open()) {
+            server.bind(new InetSocketAddress(port));
+            server.configureBlocking(false);
+            Selector selector = Selector.open();
+
+            // Register the server socket to be notified when there is a new incoming client
+            server.register(selector, OP_ACCEPT, null);
+            for (; ; ) {
+                runLoop(server, selector);
+            }
+        }
+    }
+	
+	/**
 	 * Runs the server
 	 * @param args set of arguments to define the settings of the server
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args)  throws IOException {
 		
 		// Define the options that the parser can take
 		OptionParser parser = new OptionParser();
@@ -36,7 +159,8 @@ public class HTTPServer {
 			.defaultsTo(DEFAULT_PORT);
 		
 		parser.accepts(ARG_DIRECTORY, "Specifies the directory that the server will use to read/write requested files.")
-			.withRequiredArg();
+			.withRequiredArg()
+		    .defaultsTo(DEFAULT_DIRECTORY);
 
 		// Parse the given arguments
         OptionSet opts = parser.parse(args);
@@ -47,8 +171,7 @@ public class HTTPServer {
         System.out.println("verbose:" + verbose + "|port:" + port + "|directory:" + directory);
         
         // Start the server        
-        // new HTTPRequestHandler(verbose, port, directory);
-//        new HTTPRequestHandler().listenAndServe(port);
+        new HTTPServer(verbose, port, directory).listenAndServe();
 	}
 
 }

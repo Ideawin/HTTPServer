@@ -16,9 +16,6 @@ import java.nio.file.Paths;
 
 public class FileManager {
 	
-	// Default directory
-	public static final String DEFAULT_DIRECTORY = "/COMP445";
-		
 	// Mapping files that are being read/written to, to the user that is using the file
 	private HashMap <String,String> currentActiveFiles;
 	
@@ -29,7 +26,7 @@ public class FileManager {
 	 * Get instance of a Singleton
 	 * @return FileManager singleton instance
 	 */
-	public FileManager getInstance() {
+	public static FileManager getInstance() {
 		if (instance == null)
 			instance = new FileManager();
 		return instance;
@@ -43,12 +40,7 @@ public class FileManager {
 	 */
 	public String getCurrentFiles(String dir) throws FileNotFoundException, PathNotAllowedException {
 		// File object to retrieve the list of files
-		File folder;
-		if(dir != null) {
-			folder = constructFile("", dir);
-		} else {
-			folder = constructFile("", DEFAULT_DIRECTORY);
-		}
+		File folder = constructFile("", dir);
 		
 		// List of files in string format to be returned
 		String listOfFilesAndFolders = "";
@@ -145,7 +137,7 @@ public class FileManager {
 	public File constructFile(String fileName, String dir) throws PathNotAllowedException {
 		// Construct the path
 		// For example /COMP445/directory/test.txt
-		String filePath = DEFAULT_DIRECTORY + dir + fileName;
+		String filePath = dir + fileName;
 		if(filePath.contains("..")) {
 			throw new PathNotAllowedException("The directory path cannot contain \"..\"");
 		} else {
