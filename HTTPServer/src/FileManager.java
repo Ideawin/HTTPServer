@@ -59,7 +59,6 @@ public class FileManager {
 	}
 	
 	/**
-	 * 
 	 * Method to get the content of a file in the data directory
 	 * @param name fileName
 	 * @param dir directory name
@@ -96,17 +95,25 @@ public class FileManager {
 	 * @param filename
 	 * @param dir
 	 * @param fileContent
+	 * @throws FileAccessDeniedException 
+	 * @throws IOException 
+	 * @throws NotAbsoluteFilePathException 
 	 * @throws Exception 
 	 */
-	public void writeFile(File file, String fileContent, boolean append) throws Exception {
-		try {
-			// Check if we have access
-			// TODO: Replace with actual user ID
-			if(this.attemptToAccessFile(file.getAbsolutePath(), "")) {
-				// Create any missing directories
-				file.mkdirs();
-				
-				// Write or append to the file
+	public void writeFile(File file, String fileContent, boolean append) throws NotAbsoluteFilePathException, FileAccessDeniedException, IOException {
+		
+		if(file == null) {
+			throw new FileNotFoundException("File is null");
+		}
+		
+		// Check if we have access
+		// TODO: Replace with actual user ID
+		if(this.attemptToAccessFile(file.getAbsolutePath(), "")) {
+			// Create any missing directories
+			file.mkdirs();
+			
+			// Write or append to the file
+			try {
 				BufferedWriter outputFileWriter;
 				if(append) {
 					outputFileWriter = new BufferedWriter(new FileWriter(file.getPath(), true));
@@ -116,19 +123,19 @@ public class FileManager {
 					outputFileWriter.write(fileContent);
 				}
 				outputFileWriter.close();
-			} else {
-				throw new FileAccessDeniedException("The file is already being consulted by another user");
-			}
-		} catch (Exception e) {
-			throw e;
-		} finally {
-			if(file != null)
+			} catch (IOException e) {
+				throw e;
+			} finally {
 				this.removeFileFromActiveFiles(file.getAbsolutePath());
+			}
+			
+		} else {
+			throw new FileAccessDeniedException("The file is already being consulted by another user");
 		}
 	}
 	
 	/**
-	 * 
+	 * File constructor given the file name and directory
 	 * @param fileName
 	 * @param dir
 	 * @return
