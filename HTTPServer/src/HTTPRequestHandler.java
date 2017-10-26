@@ -4,6 +4,7 @@ import exception.BadRequestException;
 import exception.FileAccessDeniedException;
 import exception.NoContentException;
 import exception.NotAbsoluteFilePathException;
+import exception.NotImplementedException;
 import exception.PathNotAllowedException;
 
 import java.io.FileNotFoundException;
@@ -56,6 +57,12 @@ public class HTTPRequestHandler {
 		try {
 			// Split into one string for request line and header, and another for the body
 			String[] strArr = request.split("\r\n\r\n");
+			// Get all the headers
+			getHeaders(strArr);
+			// Get the host
+			this.host = requestHeaders.get("Host");
+			requestHeaders.remove("Host");
+			
 			if (strArr.length == 2) {
 				requestBody = strArr[1];
 			}
@@ -69,11 +76,6 @@ public class HTTPRequestHandler {
 			else {
 				// Parse the first line (request line)
 				getRequest(strArr[0]);
-				// Get all the headers
-				getHeaders(strArr);
-				// Get the host
-				this.host = requestHeaders.get("Host");
-				requestHeaders.remove("Host");
 				// Parse request
 				parseRequest();
 			}
@@ -90,7 +92,7 @@ public class HTTPRequestHandler {
 	 * Method to get the request line and set the attributes to the corresponding value
 	 * @param request request line as a String value
 	 */
-	public void getRequest(String request) throws BadRequestException {
+	public void getRequest(String request) throws BadRequestException, NotImplementedException {
 		String[] strArr = request.split(" ");
 
 		if (strArr.length <= 2) {
@@ -98,6 +100,9 @@ public class HTTPRequestHandler {
 		}
 		else {
 			this.requestMethod = strArr[0]; // GET or POST
+			if (this.requestMethod != "GET" || this.requestMethod != "POST") {
+				throw new NotImplementedException();
+			}
 			this.requestURI += strArr[1]; // directory should be "/COMP445 + requestURI"
 		}
 	}
@@ -178,7 +183,7 @@ public class HTTPRequestHandler {
     		statusCodeReasonPhrase[0] = "503";
     		statusCodeReasonPhrase[1] = "Service Unavailable";
     	} else if (e instanceof BadRequestException) {
-    		// Client put illegal path such as ".."
+    		// If client sends a bad request
     		statusCodeReasonPhrase[0] = "400";
     		statusCodeReasonPhrase[1] = "Bad Request"; 
     	} else if (e instanceof PathNotAllowedException) {
@@ -193,6 +198,10 @@ public class HTTPRequestHandler {
     		// The requested folder to display is empty
     		statusCodeReasonPhrase[0] = "204";
     		statusCodeReasonPhrase[1] = "No Content"; 
+    	} else if (e instanceof NotImplementedException) {
+    		// If the request is not implemented
+    		statusCodeReasonPhrase[0] = "501";
+    		statusCodeReasonPhrase[1] = "Not Implemented";
     	} else {
     		// IOException or NotAbsoluteFilePathException
     		statusCodeReasonPhrase[0] = "500";
