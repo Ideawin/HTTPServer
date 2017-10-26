@@ -71,15 +71,21 @@ public class HTTPServer {
                 buffer.flip();
                 
                 // Convert buffer into a string
-                String request = buffer.toString();
+                Charset utf8 = StandardCharsets.UTF_8;
+                String request = utf8.decode(buffer).toString();
+                if(verbose) {
+                	System.out.println("Request received:\n" + request);
+                }
+                
                 
                 // Handle request
             	HTTPRequestHandler requestHandler = new HTTPRequestHandler(verbose, port, directory);
-            	
             	String response = requestHandler.handleRequest(request);
+            	if(verbose) {
+            		System.out.println("Response sent:\n" + response);
+            	}
             	
             	// Write response to the socket using a buffer
-                Charset utf8 = StandardCharsets.UTF_8;
             	buffer.put(utf8.encode(response)); // encode string response into utf8 and add to buffer
                 client.write(buffer); // write buffer to the socket
                 buffer.clear();
@@ -166,7 +172,7 @@ public class HTTPServer {
         OptionSet opts = parser.parse(args);
         boolean verbose = opts.has(ARG_VERBOSE);
         int port = (int) opts.valueOf(ARG_PORT);
-        String directory = opts.has(ARG_DIRECTORY) ? (String) opts.valueOf(ARG_DIRECTORY) : null;
+        String directory = (String) opts.valueOf(ARG_DIRECTORY);
         
         System.out.println("verbose:" + verbose + "|port:" + port + "|directory:" + directory);
         
