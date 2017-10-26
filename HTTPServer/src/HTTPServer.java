@@ -92,6 +92,7 @@ public class HTTPServer {
                 // Convert buffer into a string
                 Charset utf8 = StandardCharsets.UTF_8;
                 String request = utf8.decode(buffer).toString();
+                buffer.clear();
                 if(verbose) {
                 	System.out.println("Request received:\n" + request);
                 }
