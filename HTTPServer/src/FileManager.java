@@ -47,8 +47,6 @@ public class FileManager {
 	 * @throws PathNotAllowedException if the given path is unaccepted
 	 */
 	public String getCurrentFiles(String dir) throws FileNotFoundException, PathNotAllowedException {		
-		dir = dir.replace('/', '\\');
-		dir = System.getProperty("user.dir") + dir;
 		
 		// File object to retrieve the list of files
 		File folder = constructFile(dir);
