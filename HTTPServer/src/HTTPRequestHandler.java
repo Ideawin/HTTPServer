@@ -59,7 +59,7 @@ public class HTTPRequestHandler {
 		String[] requestLineAndHeaders = strArr[0].split("\r\n");
 		if (requestLineAndHeaders.length <= 1) {
 			statusLine = PROTOCOL + " 400 Bad Request";
-			return "Bad request"; // TO-DO get status code
+			return createResponse();
 		}
 		else {
 			// Parse the first line (request line)
@@ -91,7 +91,7 @@ public class HTTPRequestHandler {
 	 * @param strArr array of header lines as String values
 	 */
 	public void getHeaders(String[] strArr) {
-		requestHeaders.put("Server", "");
+		requestHeaders.put("Server", "Winnor");
 		requestHeaders.put("Date", new Date().toString());
 		requestHeaders.put("Connection", "close");
 		for (int i = 1; i < strArr.length; i++) {
@@ -104,7 +104,7 @@ public class HTTPRequestHandler {
 	/**
 	 * Method that will parse the request and set the response body and/or the status line
 	 */
-	public void parseRequest() throws IOException, FileAccessDeniedException, FileNotFoundException, NotAbsoluteFilePathException, PathNotAllowedException {
+	public void parseRequest() {
 		String[] errorCode;
 		statusLine = PROTOCOL + " 200 OK";
 		try {
@@ -131,7 +131,7 @@ public class HTTPRequestHandler {
 	 */
 	public String createResponse() {
 		// first line is the status line
-		String response = statusLine + "\n";
+		String response = statusLine + "\r\n";
 		// next few lines are the header lines (excluding Host which was removed in HandleRequest)
 		if (!requestHeaders.isEmpty()) {
 			for (String key : requestHeaders.keySet()) {
