@@ -1,6 +1,7 @@
 import java.util.HashMap;
 
 import exception.FileAccessDeniedException;
+import exception.NoContentException;
 import exception.NotAbsoluteFilePathException;
 import exception.PathNotAllowedException;
 
@@ -147,34 +148,38 @@ public class HTTPRequestHandler {
 		return response;
 	}
 	
-	/**
-	 * Obtain the error status code and reason phrase associated with an Exception
-	 * @param e Exception
-	 * @return String array containing the status code at index 0 and reason phrase at index 1
-	 */
-	public String[] getErrorCode(Exception e) {
-		// Index 0 contains the status code
-		// Index 1 contains the reason phrase
-		String [] statusCodeReasonPhrase = new String[2];
-
-		if(e instanceof FileAccessDeniedException) {
-			// Do not allow concurrent access to the same file
-			statusCodeReasonPhrase[0] = "503";
-			statusCodeReasonPhrase[1] = "Service Unavailable";
-		} else if (e instanceof PathNotAllowedException) {
-			// Client put illegal path such as ".."
-			statusCodeReasonPhrase[0] = "401";
-			statusCodeReasonPhrase[1] = "Unauthorized"; 
-		} else if (e instanceof FileNotFoundException) {
-			// Trying to read a file that does not exist
-			statusCodeReasonPhrase[0] = "404";
-			statusCodeReasonPhrase[1] = "Not Found"; 
-		} else {
-			// IOException or NotAbsoluteFilePathException
-			statusCodeReasonPhrase[0] = "500";
-			statusCodeReasonPhrase[1] = "Internal Server Error";
-		}
-		return statusCodeReasonPhrase;    	
-	}
+    /**
+     * Obtain the error status code and reason phrase associated with an Exception
+     * @param e Exception
+     * @return String array containing the status code at index 0 and reason phrase at index 1
+     */
+    public String[] getErrorCode(Exception e) {
+    	// Index 0 contains the status code
+    	// Index 1 contains the reason phrase
+    	String [] statusCodeReasonPhrase = new String[2];
+    	
+    	if(e instanceof FileAccessDeniedException) {
+    		// Do not allow concurrent access to the same file
+    		statusCodeReasonPhrase[0] = "503";
+    		statusCodeReasonPhrase[1] = "Service Unavailable";
+    	} else if (e instanceof PathNotAllowedException) {
+    		// Client put illegal path such as ".."
+    		statusCodeReasonPhrase[0] = "401";
+    		statusCodeReasonPhrase[1] = "Unauthorized"; 
+    	} else if (e instanceof FileNotFoundException) {
+    		// Trying to read a file that does not exist
+    		statusCodeReasonPhrase[0] = "404";
+    		statusCodeReasonPhrase[1] = "Not Found"; 
+    	} else if (e instanceof NoContentException) {
+    		// The requested folder to display is empty
+    		statusCodeReasonPhrase[0] = "204";
+    		statusCodeReasonPhrase[1] = "No Content"; 
+    	} else {
+    		// IOException or NotAbsoluteFilePathException
+    		statusCodeReasonPhrase[0] = "500";
+    		statusCodeReasonPhrase[1] = "Internal Server Error";
+    	}
+    	return statusCodeReasonPhrase;    	
+    }
 
 }
