@@ -57,17 +57,17 @@ public class HTTPRequestHandler {
 		try {
 			// Split into one string for request line and header, and another for the body
 			String[] strArr = request.split("\r\n\r\n");
-			// Get all the headers
-			getHeaders(strArr);
-			// Get the host
-			this.host = requestHeaders.get("Host");
-			requestHeaders.remove("Host");
-			
 			if (strArr.length == 2) {
 				requestBody = strArr[1];
 			}
 			// Split a string into separate strings for each line
 			String[] requestLineAndHeaders = strArr[0].split("\r\n");
+			// Get all the headers
+			getHeaders(strArr);
+			// Get the host
+			this.host = requestHeaders.get("Host");
+			requestHeaders.remove("Host");
+
 			// If there is only one line or less, it is not a valid request
 			if (requestLineAndHeaders.length <= 1) {
 				errorCode = getErrorCode(new BadRequestException());
@@ -100,7 +100,7 @@ public class HTTPRequestHandler {
 		}
 		else {
 			this.requestMethod = strArr[0]; // GET or POST
-			if (this.requestMethod != "GET" || this.requestMethod != "POST") {
+			if (this.requestMethod == "GET" && this.requestMethod != "POST") {
 				throw new NotImplementedException();
 			}
 			this.requestURI += strArr[1]; // directory should be "/COMP445 + requestURI"
