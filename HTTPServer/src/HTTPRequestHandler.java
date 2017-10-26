@@ -1,4 +1,5 @@
 import java.util.HashMap;
+import java.util.Date;
 
 public class HTTPRequestHandler {
 	
@@ -6,16 +7,16 @@ public class HTTPRequestHandler {
 	
 	private static final String PROTOCOL = "HTTP/1.0";
 	public static final String DEFAULT_HOST = "localhost:8080";
+	private String statusLine;
 	private String requestMethod;
-	private String requestBody;
 	private HashMap<String,String> requestHeaders;
-	private String outputFilename;
-	private String url;
+	private String requestBody;
+	private String url = "http://";
 	
 	// Server-related
 	Boolean verbose;
 	int port;
-	String directory;
+	String requestURI;
 	
 	/**
 	 * Constructor
@@ -26,8 +27,9 @@ public class HTTPRequestHandler {
 	public HTTPRequestHandler(Boolean verbose, int port, String dir) {
 		this.verbose = verbose;
 		this.port = port;
-		this.directory = dir;
+		this.requestURI = dir;
 		fileManager = FileManager.getInstance();
+		requestHeaders = new HashMap<String,String>();
 	}
 	
 	/**
@@ -50,7 +52,8 @@ public class HTTPRequestHandler {
 			getRequest(strArr[0]);
 			// Get all the headers
 			getHeaders(strArr);
-			return parseRequest();
+			url += requestHeaders.get("Host") + requestURI; // http://localhost:8080/COMP445/requestURIhere
+			return parseRequest(); // return a response
 		}
     }
     
@@ -61,7 +64,7 @@ public class HTTPRequestHandler {
     public void getRequest(String request) {
     	String[] strArr = request.split(" ");
     	this.requestMethod = strArr[0]; // GET or POST
-    	this.directory += strArr[1]; // directory should be "/COMP445 + /specified_directory"
+    	this.requestURI += strArr[1]; // directory should be "/COMP445 + requestURI"
     }
     
     /**
@@ -72,14 +75,24 @@ public class HTTPRequestHandler {
 		for (int i = 1; i < strArr.length; i++) {
 			String[] keyValues = strArr[i].split(" ");
 			int keyLength = keyValues[0].length();
-			requestHeaders.put(keyValues[0].substring(0, keyLength-1), keyValues[1]);// keyLength - 1 so that you don't take the ':'
+			requestHeaders.put(keyValues[0].substring(0, keyLength-1), keyValues[1]); //keyLength - 1 so that you don't take the ':'
 		}
+		requestHeaders.put("Server", "");
+		requestHeaders.put("Date", "");
+		requestHeaders.put("Connection", "close");
     }
     
     /**
      * Method that will generate a response to the request
      */
     public String parseRequest() {
+    	String response;
+    	if (requestMethod.equalsIgnoreCase("GET")) {
+    		
+    	}
+    	else if (requestMethod.equalsIgnoreCase("POST")) {
+    		
+    	}
     	return "";
     }
 

@@ -23,12 +23,12 @@ public class HTTPServer {
 
 	// Default port that the server will listen and serve
 	public static final int DEFAULT_PORT = 8080;
-	public static final String DEFAULT_HOST = "http://localhost/";
+	public static final String DEFAULT_HOST = "localhost";
 	public static final String DEFAULT_DIRECTORY = "/COMP445";
 	// Attributes of HTTPServer
-	public int port = DEFAULT_PORT;
-	public boolean verbose = false;
-	public String directory = "";
+	public int port;
+	public boolean verbose;
+	public String directory;
 	
 	// Various arguments accepted by the parser
 	public static final String ARG_VERBOSE = "v";
