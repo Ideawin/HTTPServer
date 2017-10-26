@@ -1,6 +1,7 @@
 import java.util.HashMap;
 
 import exception.FileAccessDeniedException;
+import exception.NoContentException;
 import exception.NotAbsoluteFilePathException;
 import exception.PathNotAllowedException;
 
@@ -137,6 +138,10 @@ public class HTTPRequestHandler {
     		// Trying to read a file that does not exist
     		statusCodeReasonPhrase[0] = "404";
     		statusCodeReasonPhrase[1] = "Not Found"; 
+    	} else if (e instanceof NoContentException) {
+    		// The requested folder to display is empty
+    		statusCodeReasonPhrase[0] = "204";
+    		statusCodeReasonPhrase[1] = "No Content"; 
     	} else {
     		// IOException or NotAbsoluteFilePathException
     		statusCodeReasonPhrase[0] = "500";

@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
 import exception.FileAccessDeniedException;
+import exception.NoContentException;
 import exception.PathNotAllowedException;
 import exception.NotAbsoluteFilePathException;
 
@@ -45,8 +46,9 @@ public class FileManager {
 	 * @return String representation of the list of files in the directory
 	 * @throws FileNotFoundException if the folder does not exist
 	 * @throws PathNotAllowedException if the given path is unaccepted
+	 * @throws NoContentException if the directory is empty
 	 */
-	public String getCurrentFiles(String dir) throws FileNotFoundException, PathNotAllowedException {		
+	public String getCurrentFiles(String dir) throws FileNotFoundException, PathNotAllowedException, NoContentException {		
 		
 		// File object to retrieve the list of files
 		File folder = constructFile(dir);
@@ -67,6 +69,9 @@ public class FileManager {
 		} else {
 			// The folder does not exist 
 			throw new FileNotFoundException("The folder " + dir + " does not exist.");
+		}
+		if(listOfFilesAndFolders.isEmpty()) {
+			throw new NoContentException();
 		}
 		return listOfFilesAndFolders;
 	}
