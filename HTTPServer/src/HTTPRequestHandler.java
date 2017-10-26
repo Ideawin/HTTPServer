@@ -5,6 +5,7 @@ import exception.NotAbsoluteFilePathException;
 import exception.PathNotAllowedException;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Date;
 
 public class HTTPRequestHandler {
@@ -42,7 +43,7 @@ public class HTTPRequestHandler {
 	 * Method that will handle a request
 	 * @param request the request in String format
 	 */
-    public String handleRequest(String request) {
+    public String handleRequest(String request) throws IOException, FileAccessDeniedException, FileNotFoundException, NotAbsoluteFilePathException, PathNotAllowedException {
     	// Split into one string for request line and header, and another for the body
 		String[] strArr = request.split("\r\n\r\n");
 		if (strArr.length == 2) {
@@ -58,7 +59,7 @@ public class HTTPRequestHandler {
 			getRequest(strArr[0]);
 			// Get all the headers
 			getHeaders(strArr);
-			url += requestHeaders.get("Host") + requestURI; // http://localhost:8080/COMP445/requestURIhere
+			// url += requestHeaders.get("Host") + requestURI; // http://localhost:8080/COMP445/requestURIhere NOT NEEDED?
 			return parseRequest(); // return a response
 		}
     }
@@ -91,15 +92,27 @@ public class HTTPRequestHandler {
     /**
      * Method that will generate a response to the request
      */
-    public String parseRequest() {
-    	String response;
-    	if (requestMethod.equalsIgnoreCase("GET")) {
-    		
+    public String parseRequest() throws IOException, FileAccessDeniedException, FileNotFoundException, NotAbsoluteFilePathException, PathNotAllowedException {
+    	String response = "";
+    	String[] errorCode;
+    	try {
+    		if (requestMethod.equalsIgnoreCase("GET")) {
+    			if (this.requestURI.charAt(requestURI.length() - 1) == '/') // ex. for GET / or GET /dir/ 
+    				response = fileManager.getCurrentFiles(this.requestURI);
+    			else {
+    				response = fileManager.getFile(fileManager.constructFile(this.requestURI)); // ex. for GET /dir/fileName
+    			}
+    		}
+    		else if (requestMethod.equalsIgnoreCase("POST")) {
+
+    		}
     	}
-    	else if (requestMethod.equalsIgnoreCase("POST")) {
-    		
+    	catch (Exception e) {
+    		errorCode = getErrorCode(e);
+    		statusLine = errorCode[0] + " " + errorCode[1];
+    		return "";
     	}
-    	return "";
+    	return response;
     }
     
     /**

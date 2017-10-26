@@ -1,5 +1,7 @@
 import static java.nio.channels.SelectionKey.OP_ACCEPT;
 import static java.nio.channels.SelectionKey.OP_READ;
+
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -10,6 +12,9 @@ import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+import exception.FileAccessDeniedException;
+import exception.NotAbsoluteFilePathException;
+import exception.PathNotAllowedException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
@@ -23,7 +28,7 @@ public class HTTPServer {
 
 	// Default port that the server will listen and serve
 	public static final int DEFAULT_PORT = 8080;
-	public static final String DEFAULT_HOST = "localhost";
+	public static final String DEFAULT_HOST = "localhost:8080";
 	public static final String DEFAULT_DIRECTORY = "/COMP445";
 	// Attributes of HTTPServer
 	public int port;
@@ -54,7 +59,7 @@ public class HTTPServer {
      * Method to read the buffer and get the request as a String
      * @param s
      */
-    private void readAndGetRequest(SelectionKey s) {
+    private void readAndGetRequest(SelectionKey s) throws FileAccessDeniedException, NotAbsoluteFilePathException, PathNotAllowedException  {
         SocketChannel client = (SocketChannel) s.channel();
         try {
             for (; ; ) {
@@ -116,7 +121,7 @@ public class HTTPServer {
         }
     }
 
-    private void runLoop(ServerSocketChannel server, Selector selector) throws IOException {
+    private void runLoop(ServerSocketChannel server, Selector selector) throws IOException, FileAccessDeniedException, NotAbsoluteFilePathException, PathNotAllowedException  {
         // Check if there is any event (eg. new client or new data) happened
         selector.select();
 
@@ -134,7 +139,7 @@ public class HTTPServer {
         selector.selectedKeys().clear();
     }
     
-    private void listenAndServe() throws IOException {
+    private void listenAndServe() throws IOException, FileAccessDeniedException, FileNotFoundException, NotAbsoluteFilePathException, PathNotAllowedException {
         try (ServerSocketChannel server = ServerSocketChannel.open()) {
             server.bind(new InetSocketAddress(port));
             server.configureBlocking(false);
@@ -152,7 +157,7 @@ public class HTTPServer {
 	 * Runs the server
 	 * @param args set of arguments to define the settings of the server
 	 */
-	public static void main(String[] args)  throws IOException {
+	public static void main(String[] args) throws IOException, FileAccessDeniedException, NotAbsoluteFilePathException, PathNotAllowedException  {
 		
 		// Define the options that the parser can take
 		OptionParser parser = new OptionParser();
