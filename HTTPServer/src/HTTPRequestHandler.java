@@ -1,5 +1,6 @@
 import java.util.HashMap;
 
+import exception.BadRequestException;
 import exception.FileAccessDeniedException;
 import exception.NoContentException;
 import exception.NotAbsoluteFilePathException;
@@ -20,6 +21,7 @@ public class HTTPRequestHandler {
 	private HashMap<String,String> requestHeaders;
 	private String requestBody;
 	private String responseBody;
+	String[] errorCode;
 
 	// Server-related
 	Boolean verbose;
@@ -38,6 +40,7 @@ public class HTTPRequestHandler {
 		requestMethod = "";
 		requestBody = "";
 		responseBody = "";
+		errorCode = new String[2];
 		this.verbose = verbose;
 		this.port = port;
 		this.requestURI = dir;
@@ -49,41 +52,54 @@ public class HTTPRequestHandler {
 	 * Method that will handle a request
 	 * @param request the request in String format
 	 */
-	public String handleRequest(String request) throws IOException, FileAccessDeniedException, FileNotFoundException, NotAbsoluteFilePathException, PathNotAllowedException {
-		// Split into one string for request line and header, and another for the body
-		String[] strArr = request.split("\r\n\r\n");
-		if (strArr.length == 2) {
-			requestBody = strArr[1];
+	public String handleRequest(String request) {
+		try {
+			// Split into one string for request line and header, and another for the body
+			String[] strArr = request.split("\r\n\r\n");
+			if (strArr.length == 2) {
+				requestBody = strArr[1];
+			}
+			// Split a string into separate strings for each line
+			String[] requestLineAndHeaders = strArr[0].split("\r\n");
+			// If there is only one line or less, it is not a valid request
+			if (requestLineAndHeaders.length <= 1) {
+				errorCode = getErrorCode(new BadRequestException());
+				statusLine = PROTOCOL + " "  + errorCode[0] + " " + errorCode[1];
+			}
+			else {
+				// Parse the first line (request line)
+				getRequest(strArr[0]);
+				// Get all the headers
+				getHeaders(strArr);
+				// Get the host
+				this.host = requestHeaders.get("Host");
+				requestHeaders.remove("Host");
+				// Parse request
+				parseRequest();
+			}
 		}
-		// Split a string into separate strings for each line
-		String[] requestLineAndHeaders = strArr[0].split("\r\n");
-		if (requestLineAndHeaders.length <= 1) {
-			statusLine = PROTOCOL + " 400 Bad Request";
-			return createResponse();
+		catch (Exception e) {
+			errorCode = getErrorCode(e);
+			statusLine = PROTOCOL + " "  + errorCode[0] + " " + errorCode[1];
 		}
-		else {
-			// Parse the first line (request line)
-			getRequest(strArr[0]);
-			// Get all the headers
-			getHeaders(strArr);
-			// Get the host
-			this.host = requestHeaders.get("Host");
-			requestHeaders.remove("Host");
-			// Parse request
-			parseRequest();
-			// Generate a request and return to the client
-			return createResponse();
-		}
+		// Generate a response and return to the client
+		return createResponse();
 	}
 
 	/**
 	 * Method to get the request line and set the attributes to the corresponding value
 	 * @param request request line as a String value
 	 */
-	public void getRequest(String request) {
+	public void getRequest(String request) throws BadRequestException {
 		String[] strArr = request.split(" ");
-		this.requestMethod = strArr[0]; // GET or POST
-		this.requestURI += strArr[1]; // directory should be "/COMP445 + requestURI"
+
+		if (strArr.length <= 2) {
+			throw new BadRequestException();
+		}
+		else {
+			this.requestMethod = strArr[0]; // GET or POST
+			this.requestURI += strArr[1]; // directory should be "/COMP445 + requestURI"
+		}
 	}
 
 	/**
@@ -105,7 +121,6 @@ public class HTTPRequestHandler {
 	 * Method that will parse the request and set the response body and/or the status line
 	 */
 	public void parseRequest() {
-		String[] errorCode;
 		statusLine = PROTOCOL + " 200 OK";
 		try {
 			if (requestMethod.equalsIgnoreCase("GET")) {
@@ -162,6 +177,10 @@ public class HTTPRequestHandler {
     		// Do not allow concurrent access to the same file
     		statusCodeReasonPhrase[0] = "503";
     		statusCodeReasonPhrase[1] = "Service Unavailable";
+    	} else if (e instanceof BadRequestException) {
+    		// Client put illegal path such as ".."
+    		statusCodeReasonPhrase[0] = "400";
+    		statusCodeReasonPhrase[1] = "Bad Request"; 
     	} else if (e instanceof PathNotAllowedException) {
     		// Client put illegal path such as ".."
     		statusCodeReasonPhrase[0] = "401";

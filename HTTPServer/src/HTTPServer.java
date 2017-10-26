@@ -112,11 +112,9 @@ public class HTTPServer {
 				buffer.clear();
 				
 				client.close();
-				//client.shutdownOutput();
 			}
 		} catch (IOException e) {
 			unregisterClient(s);
-			System.out.println("Failed to receive/send data");
 		}
 	}
 
