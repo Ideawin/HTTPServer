@@ -38,10 +38,13 @@ public class FileManager {
 	 * @throws FileNotFoundException if the folder does not exist
 	 * @throws PathNotAllowedException if the given path is unaccepted
 	 */
-	public String getCurrentFiles(String dir) throws FileNotFoundException, PathNotAllowedException {
+	public String getCurrentFiles(String dir) throws FileNotFoundException, PathNotAllowedException {		
+		dir = dir.replace('/', '\\');
+		dir = System.getProperty("user.dir") + dir;
+		
 		// File object to retrieve the list of files
 		File folder = constructFile("", dir);
-		
+		  
 		// List of files in string format to be returned
 		String listOfFilesAndFolders = "";
 				
@@ -49,7 +52,11 @@ public class FileManager {
 		if(folder.exists() && folder.isDirectory()) {
 			File[] directoryFiles = folder.listFiles();
 			for(File file : directoryFiles) {
-				listOfFilesAndFolders += file.getName() + "\n";
+				listOfFilesAndFolders += file.getName();
+				if(file.isDirectory()) {
+					listOfFilesAndFolders += "/";
+				}
+				listOfFilesAndFolders += "\n";
 			}
 		} else {
 			// The folder does not exist 
