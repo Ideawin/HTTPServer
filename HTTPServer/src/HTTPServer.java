@@ -172,7 +172,7 @@ public class HTTPServer {
         OptionSet opts = parser.parse(args);
         boolean verbose = opts.has(ARG_VERBOSE);
         int port = (int) opts.valueOf(ARG_PORT);
-        String directory = opts.has(ARG_DIRECTORY) ? (String) opts.valueOf(ARG_DIRECTORY) : null;
+        String directory = (String) opts.valueOf(ARG_DIRECTORY);
         
         System.out.println("verbose:" + verbose + "|port:" + port + "|directory:" + directory);
         
