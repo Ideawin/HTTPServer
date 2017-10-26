@@ -1,4 +1,8 @@
 import java.util.HashMap;
+
+import exception.PathNotAllowedException;
+
+import java.io.FileNotFoundException;
 import java.util.Date;
 
 public class HTTPRequestHandler {
@@ -36,7 +40,7 @@ public class HTTPRequestHandler {
 	 * Method that will handle a request
 	 * @param request the request in String format
 	 */
-    public String handleRequest(String request) {
+    public String handleRequest(String request) throws FileNotFoundException, PathNotAllowedException {
     	// Split into one string for request line and header, and another for the body
 		String[] strArr = request.split("\r\n\r\n");
 		if (strArr.length == 2) {
@@ -85,10 +89,14 @@ public class HTTPRequestHandler {
     /**
      * Method that will generate a response to the request
      */
-    public String parseRequest() {
+    public String parseRequest() throws FileNotFoundException, PathNotAllowedException {
     	String response;
     	if (requestMethod.equalsIgnoreCase("GET")) {
-    		
+    		if (this.requestURI.charAt(requestURI.length() - 1) == '/') // GET / or GET /dir/ 
+    			response = fileManager.getCurrentFiles(this.requestURI);
+    		else {
+    			response = fileManager.getFile(fileManager.constructFile(this.requestURI));
+    		}
     	}
     	else if (requestMethod.equalsIgnoreCase("POST")) {
     		

@@ -164,7 +164,7 @@ public class HTTPServer {
 			.ofType(Integer.class)
 			.defaultsTo(DEFAULT_PORT);
 		
-		parser.accepts(ARG_DIRECTORY, "Specifies the directory that the server will use to read/write requested files.")
+		parser.accepts(ARG_DIRECTORY, "Specifies the directory that the server will use to read/write requested files.") // For example /comp445
 			.withRequiredArg()
 		    .defaultsTo(DEFAULT_DIRECTORY);
 
