@@ -124,16 +124,17 @@ public class FileManager {
 		// TODO: Replace with actual user ID
 		if(this.attemptToAccessFile(file.getAbsolutePath(), "")) {
 			// Create any missing directories
-			file.mkdirs();
+			file.getParentFile().mkdirs();
+			file.createNewFile();
 			
 			// Write or append to the file
 			try {
 				BufferedWriter outputFileWriter;
 				if(append) {
-					outputFileWriter = new BufferedWriter(new FileWriter(file.getPath(), true));
+					outputFileWriter = new BufferedWriter(new FileWriter(file.getAbsolutePath(), true));
 					outputFileWriter.append(fileContent);
 				} else {
-					outputFileWriter = new BufferedWriter(new FileWriter(file.getPath()));
+					outputFileWriter = new BufferedWriter(new FileWriter(file.getAbsolutePath()));
 					outputFileWriter.write(fileContent);
 				}
 				outputFileWriter.close();
