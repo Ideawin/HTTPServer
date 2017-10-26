@@ -33,6 +33,13 @@ public class FileManager {
 	}
 	
 	/**
+	 * Private constructor
+	 */
+	private FileManager() {
+		this.currentActiveFiles = new HashMap<String,String>();
+	}
+	
+	/**
 	 * Method to get the current files in the current directory
 	 * @param dir directory path to be accessed
 	 * @return String representation of the list of files in the directory
@@ -117,16 +124,17 @@ public class FileManager {
 		// TODO: Replace with actual user ID
 		if(this.attemptToAccessFile(file.getAbsolutePath(), "")) {
 			// Create any missing directories
-			file.mkdirs();
+			file.getParentFile().mkdirs();
+			file.createNewFile();
 			
 			// Write or append to the file
 			try {
 				BufferedWriter outputFileWriter;
 				if(append) {
-					outputFileWriter = new BufferedWriter(new FileWriter(file.getPath(), true));
+					outputFileWriter = new BufferedWriter(new FileWriter(file.getAbsolutePath(), true));
 					outputFileWriter.append(fileContent);
 				} else {
-					outputFileWriter = new BufferedWriter(new FileWriter(file.getPath()));
+					outputFileWriter = new BufferedWriter(new FileWriter(file.getAbsolutePath()));
 					outputFileWriter.write(fileContent);
 				}
 				outputFileWriter.close();
@@ -153,7 +161,8 @@ public class FileManager {
 		if(filePath.contains("..")) {
 			throw new PathNotAllowedException("The directory path cannot contain \"..\"");
 		} else {
-			return new File(filePath);
+			filePath = filePath.replace('/', '\\');
+			return new File(System.getProperty("user.dir") + filePath);
 		}
 	}
 	

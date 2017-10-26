@@ -59,7 +59,7 @@ public class HTTPRequestHandler {
 			getRequest(strArr[0]);
 			// Get all the headers
 			getHeaders(strArr);
-			url += requestHeaders.get("Host") + requestURI; // http://localhost:8080/COMP445/requestURIhere
+			// url += requestHeaders.get("Host") + requestURI; // http://localhost:8080/COMP445/requestURIhere NOT NEEDED?
 			return parseRequest(); // return a response
 		}
     }
@@ -93,18 +93,56 @@ public class HTTPRequestHandler {
      * Method that will generate a response to the request
      */
     public String parseRequest() throws IOException, FileAccessDeniedException, FileNotFoundException, NotAbsoluteFilePathException, PathNotAllowedException {
-    	String response;
-    	if (requestMethod.equalsIgnoreCase("GET")) {
-    		if (this.requestURI.charAt(requestURI.length() - 1) == '/') // GET / or GET /dir/ 
-    			response = fileManager.getCurrentFiles(this.requestURI);
-    		else {
-    			response = fileManager.getFile(fileManager.constructFile(this.requestURI));
+    	String response = "";
+    	String[] errorCode;
+    	try {
+    		if (requestMethod.equalsIgnoreCase("GET")) {
+    			if (this.requestURI.charAt(requestURI.length() - 1) == '/') // ex. for GET / or GET /dir/ 
+    				response = fileManager.getCurrentFiles(this.requestURI);
+    			else {
+    				response = fileManager.getFile(fileManager.constructFile(this.requestURI)); // ex. for GET /dir/fileName
+    			}
+    		}
+    		else if (requestMethod.equalsIgnoreCase("POST")) {
+
     		}
     	}
-    	else if (requestMethod.equalsIgnoreCase("POST")) {
-    		
+    	catch (Exception e) {
+    		errorCode = getErrorCode(e);
+    		statusLine = errorCode[0] + " " + errorCode[1];
+    		return "";
     	}
-    	return "";
+    	return response;
+    }
+    
+    /**
+     * Obtain the error status code and reason phrase associated with an Exception
+     * @param e Exception
+     * @return String array containing the status code at index 0 and reason phrase at index 1
+     */
+    public String[] getErrorCode(Exception e) {
+    	// Index 0 contains the status code
+    	// Index 1 contains the reason phrase
+    	String [] statusCodeReasonPhrase = new String[2];
+    	
+    	if(e instanceof FileAccessDeniedException) {
+    		// Do not allow concurrent access to the same file
+    		statusCodeReasonPhrase[0] = "503";
+    		statusCodeReasonPhrase[1] = "Service Unavailable";
+    	} else if (e instanceof PathNotAllowedException) {
+    		// Client put illegal path such as ".."
+    		statusCodeReasonPhrase[0] = "401";
+    		statusCodeReasonPhrase[1] = "Unauthorized"; 
+    	} else if (e instanceof FileNotFoundException) {
+    		// Trying to read a file that does not exist
+    		statusCodeReasonPhrase[0] = "404";
+    		statusCodeReasonPhrase[1] = "Not Found"; 
+    	} else {
+    		// IOException or NotAbsoluteFilePathException
+    		statusCodeReasonPhrase[0] = "500";
+    		statusCodeReasonPhrase[1] = "Internal Server Error";
+    	}
+    	return statusCodeReasonPhrase;    	
     }
 
 }
