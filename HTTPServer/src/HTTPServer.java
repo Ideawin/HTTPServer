@@ -1,6 +1,7 @@
 import static java.nio.channels.SelectionKey.OP_ACCEPT;
 import static java.nio.channels.SelectionKey.OP_READ;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -45,8 +46,21 @@ public class HTTPServer {
 	 * @param verbose
 	 * @param port
 	 * @param directory
+	 * @throws PathNotAllowedException 
+	 * @throws FileNotFoundException 
 	 */
 	public HTTPServer(boolean verbose, int port, String directory) {
+		// Check if the given working directory exists 
+		try {
+			File dir = FileManager.getInstance().constructFile(directory);
+			if(!dir.exists() || !dir.isDirectory()) {
+				throw new FileNotFoundException();
+			}
+		} catch (Exception e) {
+			System.out.println("The given working directory does not exist or the path is invalid.");
+			System.exit(1);
+		}
+		
 		this.verbose = verbose;
 		this.port = port;
 		this.directory = directory;

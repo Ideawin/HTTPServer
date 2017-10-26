@@ -165,7 +165,11 @@ public class FileManager {
 			throw new PathNotAllowedException("The directory path cannot contain \"..\"");
 		} else {
 			filePath = filePath.replace('/', '\\');
-			return new File(System.getProperty("user.dir") + filePath);
+			File file = new File(filePath);
+			if(!file.isAbsolute()) {
+				file = new File(System.getProperty("user.dir") + filePath);
+			}
+			return file;
 		}
 	}
 	
