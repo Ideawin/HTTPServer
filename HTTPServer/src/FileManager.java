@@ -34,6 +34,7 @@ public class FileManager {
 	
 	/**
 	 * Method to get the current files in the current directory
+	 * @param dir directory path to be accessed
 	 * @return String representation of the list of files in the directory
 	 * @throws FileNotFoundException if the folder does not exist
 	 * @throws PathNotAllowedException if the given path is unaccepted
@@ -43,7 +44,7 @@ public class FileManager {
 		dir = System.getProperty("user.dir") + dir;
 		
 		// File object to retrieve the list of files
-		File folder = constructFile("", dir);
+		File folder = constructFile(dir);
 		  
 		// List of files in string format to be returned
 		String listOfFilesAndFolders = "";
@@ -67,8 +68,7 @@ public class FileManager {
 	
 	/**
 	 * Method to get the content of a file in the data directory
-	 * @param name fileName
-	 * @param dir directory name
+	 * @param file File object to be accessed
 	 * @return content of the file as a String value
 	 * @throws IOException 
 	 * @throws PathNotAllowedException 
@@ -99,9 +99,9 @@ public class FileManager {
 	
 	/**
 	 * Writes to a file
-	 * @param filename
-	 * @param dir
-	 * @param fileContent
+	 * @param file File to be accessed
+	 * @param fileContent the content to be written to the file
+	 * @param append indicates whether the content should be appended to the existing content or overwrite
 	 * @throws FileAccessDeniedException 
 	 * @throws IOException 
 	 * @throws NotAbsoluteFilePathException 
@@ -143,15 +143,13 @@ public class FileManager {
 	
 	/**
 	 * File constructor given the file name and directory
-	 * @param fileName
-	 * @param dir
-	 * @return
+	 * @param filePath Path of the file, including the file name to be constructed
+	 * @return File that is constructed
 	 * @throws PathNotAllowedException
 	 */
-	public File constructFile(String fileName, String dir) throws PathNotAllowedException {
+	public File constructFile(String filePath) throws PathNotAllowedException {
 		// Construct the path
 		// For example /COMP445/directory/test.txt
-		String filePath = dir + fileName;
 		if(filePath.contains("..")) {
 			throw new PathNotAllowedException("The directory path cannot contain \"..\"");
 		} else {
