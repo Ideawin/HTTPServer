@@ -155,6 +155,7 @@ public class HTTPRequestHandler {
 				}
 				fileManager.writeFile(fileManager.constructFile(this.requestURI), requestBody, false);
 				statusLine = PROTOCOL + " 201 Created";
+				responseBody = requestBody;
 				if (verbose) {
 					System.out.println("[DEBUG: File successfully written to " + this.requestURI + "]\n");
 				}
