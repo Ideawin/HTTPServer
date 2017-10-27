@@ -62,11 +62,6 @@ public class HTTPRequestHandler {
 			}
 			// Split a string into separate strings for each line
 			String[] requestLineAndHeaders = strArr[0].split("\r\n");
-			// Get all the headers
-			getHeaders(strArr);
-			// Get the host
-			this.host = requestHeaders.get("Host");
-			requestHeaders.remove("Host");
 
 			// If there is only one line or less, it is not a valid request
 			if (requestLineAndHeaders.length <= 1) {
@@ -74,8 +69,13 @@ public class HTTPRequestHandler {
 				statusLine = PROTOCOL + " "  + errorCode[0] + " " + errorCode[1];
 			}
 			else {
+				// Get all the headers
+				getHeaders(requestLineAndHeaders);
+				// Get the host
+				this.host = requestHeaders.get("Host");
+				requestHeaders.remove("Host");
 				// Parse the first line (request line)
-				getRequest(strArr[0]);
+				getRequest(requestLineAndHeaders[0]);
 				// Parse request
 				parseRequest();
 			}
@@ -136,7 +136,8 @@ public class HTTPRequestHandler {
 				}
 			}
 			else if (requestMethod.equalsIgnoreCase("POST")) {
-
+				fileManager.writeFile(fileManager.constructFile(this.requestURI), requestBody, false);
+				statusLine = PROTOCOL + " 201 Created";
 			}
 		}
 		catch (Exception e) {
@@ -164,7 +165,7 @@ public class HTTPRequestHandler {
 		}
 		else
 			response += "\r\n";
-		System.out.println("Response to client: \n" + response);
+		System.out.println("\nResponse to client: \n" + response);
 		return response;
 	}
 	
