@@ -95,22 +95,21 @@ public class HTTPServer {
 				String request = utf8.decode(buffer).toString();
 				buffer.clear();
 				if(verbose) {
-					System.out.println("Request received:\n" + request);
+					System.out.println("\n[DEBUG: Request received]\n" + request);
 				}
 
 				// Handle request
 				HTTPRequestHandler requestHandler = new HTTPRequestHandler(verbose, port, directory);
 				String response = requestHandler.handleRequest(request);
-				if(verbose) {
-					System.out.println("Response sent:\n" + response);
-				}
 
 				// Write response to the socket using a buffer
 				buffer.put(utf8.encode(response)); // encode string response into utf8 and add to buffer
 				buffer.flip();
 				client.write(buffer); // write buffer to the socket
 				buffer.clear();
-				
+				if(verbose) {
+					System.out.println("[DEBUG: Response sent to client]\n" + response);
+				}
 				client.close();
 			}
 		} catch (IOException e) {

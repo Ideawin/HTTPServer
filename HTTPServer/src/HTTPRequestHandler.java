@@ -129,20 +129,43 @@ public class HTTPRequestHandler {
 		statusLine = PROTOCOL + " 200 OK";
 		try {
 			if (requestMethod.equalsIgnoreCase("GET")) {
-				if (this.requestURI.charAt(requestURI.length() - 1) == '/') // ex. for GET / or GET /dir/ 
+				if (verbose) {
+					System.out.println("[DEBUG: GET request received.]\n");
+				}
+				if (this.requestURI.charAt(requestURI.length() - 1) == '/') { // ex. for GET / or GET /dir/ 
 					responseBody = fileManager.getCurrentFiles(this.requestURI);
+					String length = "" + responseBody.length();
+					requestHeaders.put("Content-Length", length); // set the Content-Length
+					if (verbose) {
+						System.out.println("[DEBUG: Content of " + this.requestURI + " was successfully obtained.]\n");
+					}
+				}
 				else {
 					responseBody = fileManager.getFile(fileManager.constructFile(this.requestURI)); // ex. for GET /dir/fileName
+					String length = "" + responseBody.length();
+					requestHeaders.put("Content-Length", length); // set the Content-Length
+					if (verbose) {
+						System.out.println("[DEBUG: Content of the file " + this.requestURI + " was successfully obtained.]\n");
+					}
 				}
 			}
 			else if (requestMethod.equalsIgnoreCase("POST")) {
+				if (verbose) {
+					System.out.println("[DEBUG: POST request received.]\n");
+				}
 				fileManager.writeFile(fileManager.constructFile(this.requestURI), requestBody, false);
 				statusLine = PROTOCOL + " 201 Created";
+				if (verbose) {
+					System.out.println("[DEBUG: File successfully written to " + this.requestURI + "]\n");
+				}
 			}
 		}
 		catch (Exception e) {
 			errorCode = getErrorCode(e);
 			statusLine = PROTOCOL + " "  + errorCode[0] + " " + errorCode[1];
+			if (verbose) {
+				System.out.println("Server: Exception thrown with code " + errorCode[0] + "\n");
+			}
 		}
 	}
 
@@ -165,50 +188,52 @@ public class HTTPRequestHandler {
 		}
 		else
 			response += "\r\n";
-		System.out.println("\nResponse to client: \n" + response);
+		if (verbose) {
+			System.out.println("[DEBUG: Response successfully created.]\n");
+		}
 		return response;
 	}
-	
-    /**
-     * Obtain the error status code and reason phrase associated with an Exception
-     * @param e Exception
-     * @return String array containing the status code at index 0 and reason phrase at index 1
-     */
-    public String[] getErrorCode(Exception e) {
-    	// Index 0 contains the status code
-    	// Index 1 contains the reason phrase
-    	String [] statusCodeReasonPhrase = new String[2];
-    	
-    	if(e instanceof FileAccessDeniedException) {
-    		// Do not allow concurrent access to the same file
-    		statusCodeReasonPhrase[0] = "503";
-    		statusCodeReasonPhrase[1] = "Service Unavailable";
-    	} else if (e instanceof BadRequestException) {
-    		// If client sends a bad request
-    		statusCodeReasonPhrase[0] = "400";
-    		statusCodeReasonPhrase[1] = "Bad Request"; 
-    	} else if (e instanceof PathNotAllowedException) {
-    		// Client put illegal path such as ".."
-    		statusCodeReasonPhrase[0] = "401";
-    		statusCodeReasonPhrase[1] = "Unauthorized"; 
-    	} else if (e instanceof FileNotFoundException) {
-    		// Trying to read a file that does not exist
-    		statusCodeReasonPhrase[0] = "404";
-    		statusCodeReasonPhrase[1] = "Not Found"; 
-    	} else if (e instanceof NoContentException) {
-    		// The requested folder to display is empty
-    		statusCodeReasonPhrase[0] = "204";
-    		statusCodeReasonPhrase[1] = "No Content"; 
-    	} else if (e instanceof NotImplementedException) {
-    		// If the request is not implemented
-    		statusCodeReasonPhrase[0] = "501";
-    		statusCodeReasonPhrase[1] = "Not Implemented";
-    	} else {
-    		// IOException or NotAbsoluteFilePathException
-    		statusCodeReasonPhrase[0] = "500";
-    		statusCodeReasonPhrase[1] = "Internal Server Error";
-    	}
-    	return statusCodeReasonPhrase;    	
-    }
+
+	/**
+	 * Obtain the error status code and reason phrase associated with an Exception
+	 * @param e Exception
+	 * @return String array containing the status code at index 0 and reason phrase at index 1
+	 */
+	public String[] getErrorCode(Exception e) {
+		// Index 0 contains the status code
+		// Index 1 contains the reason phrase
+		String [] statusCodeReasonPhrase = new String[2];
+
+		if(e instanceof FileAccessDeniedException) {
+			// Do not allow concurrent access to the same file
+			statusCodeReasonPhrase[0] = "503";
+			statusCodeReasonPhrase[1] = "Service Unavailable";
+		} else if (e instanceof BadRequestException) {
+			// If client sends a bad request
+			statusCodeReasonPhrase[0] = "400";
+			statusCodeReasonPhrase[1] = "Bad Request"; 
+		} else if (e instanceof PathNotAllowedException) {
+			// Client put illegal path such as ".."
+			statusCodeReasonPhrase[0] = "401";
+			statusCodeReasonPhrase[1] = "Unauthorized"; 
+		} else if (e instanceof FileNotFoundException) {
+			// Trying to read a file that does not exist
+			statusCodeReasonPhrase[0] = "404";
+			statusCodeReasonPhrase[1] = "Not Found"; 
+		} else if (e instanceof NoContentException) {
+			// The requested folder to display is empty
+			statusCodeReasonPhrase[0] = "204";
+			statusCodeReasonPhrase[1] = "No Content"; 
+		} else if (e instanceof NotImplementedException) {
+			// If the request is not implemented
+			statusCodeReasonPhrase[0] = "501";
+			statusCodeReasonPhrase[1] = "Not Implemented";
+		} else {
+			// IOException or NotAbsoluteFilePathException
+			statusCodeReasonPhrase[0] = "500";
+			statusCodeReasonPhrase[1] = "Internal Server Error";
+		}
+		return statusCodeReasonPhrase;    	
+	}
 
 }
