@@ -103,10 +103,27 @@ public class HTTPServer {
 				String response = requestHandler.handleRequest(request);
 
 				// Write response to the socket using a buffer
-				buffer.put(utf8.encode(response)); // encode string response into utf8 and add to buffer
-				buffer.flip();
-				client.write(buffer); // write buffer to the socket
-				buffer.clear();
+				byte[] byteArrayResponse = utf8.encode(response).array();
+				int byteArrayResponseIndex = 0;
+				
+				// Prevent the byte buffer from overflowing while writing:
+				// While we are not done writing
+				while(byteArrayResponseIndex < byteArrayResponse.length) {
+					// While there is remaining space in the byte buffer and that we're not done writing
+					while(buffer.hasRemaining() && byteArrayResponseIndex < byteArrayResponse.length) {
+						buffer.put(byteArrayResponse[byteArrayResponseIndex++]);
+					}
+					// Write
+					buffer.flip();
+					client.write(buffer); // write buffer to the socket
+					buffer.clear();
+				}
+				
+//				buffer.put(utf8.encode(response)); // encode string response into utf8 and add to buffer
+//				buffer.flip();
+//				client.write(buffer); // write buffer to the socket
+//				buffer.clear();
+				
 				if(verbose) {
 					System.out.println("[DEBUG: Response sent to client]\n" + response);
 				}
