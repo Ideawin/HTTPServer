@@ -65,24 +65,25 @@ public class HTTPRequestHandler {
 			if (strArr.length == 2) {
 				requestBody = strArr[1]; // 2nd part is the request body
 
-				String[] requestLineAndHeaders = strArr[0].split("\r\n"); // 1st part is the request line with headers. Split this part into separate lines
+				
+			}
+			String[] requestLineAndHeaders = strArr[0].split("\r\n"); // 1st part is the request line with headers. Split this part into separate lines
 
-				// If there is only one line or less, it is not a valid request
-				if (requestLineAndHeaders.length <= 1) {
-					errorCode = getErrorCode(new BadRequestException());
-					statusLine = PROTOCOL + " "  + errorCode[0] + " " + errorCode[1];
-				}
-				else {
-					// Get all the headers
-					getHeaders(requestLineAndHeaders);
-					// Get the host and remove it from the list of headers
-					this.host = requestHeaders.get("Host");
-					requestHeaders.remove("Host");
-					// Parse the first line (request line)
-					getRequest(requestLineAndHeaders[0]);
-					// Parse request
-					parseRequest();
-				}
+			// If there is only one line or less, it is not a valid request
+			if (requestLineAndHeaders.length <= 1) {
+				errorCode = getErrorCode(new BadRequestException());
+				statusLine = PROTOCOL + " "  + errorCode[0] + " " + errorCode[1];
+			}
+			else {
+				// Get all the headers
+				getHeaders(requestLineAndHeaders);
+				// Get the host and remove it from the list of headers
+				this.host = requestHeaders.get("Host");
+				requestHeaders.remove("Host");
+				// Parse the first line (request line)
+				getRequest(requestLineAndHeaders[0]);
+				// Parse request
+				parseRequest();
 			}
 		}
 		catch (Exception e) {
