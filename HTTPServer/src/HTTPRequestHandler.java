@@ -62,9 +62,9 @@ public class HTTPRequestHandler {
 		try {
 			// Split into one string for request line and header, and another for the body
 			String[] strArr = request.split("\r\n\r\n");
+			System.out.println(strArr[0]);
 			if (strArr.length == 2) {
 				requestBody = strArr[1]; // 2nd part is the request body
-
 				String[] requestLineAndHeaders = strArr[0].split("\r\n"); // 1st part is the request line with headers. Split this part into separate lines
 
 				// If there is only one line or less, it is not a valid request
@@ -154,9 +154,14 @@ public class HTTPRequestHandler {
 					}
 				}
 				else {
-					responseBody = fileManager.getFile(fileManager.constructFile(this.requestURI)); // ex. for GET /dir/fileName
+					String[] fileContent = new String[2];
+					fileContent = fileManager.getFile(fileManager.constructFile(this.requestURI));
+					System.out.println(fileContent[2]);// ex. for GET /dir/fileName
+					responseBody = fileContent[0];
+					String lastModified = fileContent[1];
 					String length = "" + responseBody.length();
 					requestHeaders.put("Content-Length", length); // set the Content-Length
+					requestHeaders.put("Last-Modified", lastModified);
 					if (verbose) {
 						System.out.println("[DEBUG: Content of the file " + this.requestURI + " was successfully obtained.]\n");
 					}
@@ -203,7 +208,8 @@ public class HTTPRequestHandler {
 		else
 			response += "\r\n";
 		if (verbose) {
-			System.out.println("[DEBUG: Response successfully created.]\n");
+			System.out.println("[DEBUG: Response successfully created.]\n" + response);
+			
 		}
 		return response;
 	}

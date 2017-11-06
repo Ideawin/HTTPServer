@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.TimeZone;
 
 import exception.FileAccessDeniedException;
 import exception.NoContentException;
@@ -14,6 +15,8 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 public class FileManager {
 	
@@ -85,7 +88,7 @@ public class FileManager {
 	 * @throws NotAbsoluteFilePathException 
 	 * @throws FileAccessDeniedException 
 	 */
-	public String getFile(File file) throws NotAbsoluteFilePathException, IOException, FileAccessDeniedException, FileNotFoundException {
+	public String[] getFile(File file) throws NotAbsoluteFilePathException, IOException, FileAccessDeniedException, FileNotFoundException {
 		
 		if(file == null || !file.exists() || !file.isFile()) {
 			throw new FileNotFoundException("File " + file.getName() + " is not found, or is not a file.");
@@ -96,7 +99,13 @@ public class FileManager {
 		if(this.attemptToAccessFile(file.getAbsolutePath(), "")) {
 			try {
 				byte[] encodedFileContent = Files.readAllBytes(Paths.get(file.getPath()));
-				return new String (encodedFileContent, StandardCharsets.UTF_8);
+				String[] fileContent = new String[2];
+				long lastModified = file.lastModified();
+				fileContent[0] = new String (encodedFileContent, StandardCharsets.UTF_8);
+				DateFormat df = new SimpleDateFormat("EEE, dd MMM YYYY HH:mm:ss");
+				df.setTimeZone(TimeZone.getTimeZone("GMT"));
+				fileContent[1] = df.format(lastModified) + " GMT";
+				return fileContent;
 			} catch (IOException e) {
 				throw e;
 			} finally {
