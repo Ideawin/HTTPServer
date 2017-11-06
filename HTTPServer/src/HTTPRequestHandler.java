@@ -118,21 +118,21 @@ public class HTTPRequestHandler {
 	 * @param strArr array of header lines as String values
 	 */
 	public void getHeaders(String[] strArr) {
-		requestHeaders.put("Server", "COMP445-Server");
-		
-		// Get current date in GMT
-		Date now = new Date();
-		DateFormat df = new SimpleDateFormat("EEE, dd MMM YYYY HH:mm:ss");
-		df.setTimeZone(TimeZone.getTimeZone("GMT"));
-		requestHeaders.put("Date", df.format(now) + " GMT");
-		
-		// Add content type (default to text/html)
-		requestHeaders.put("Content-Type", "text/html");
-		requestHeaders.put("Connection", "close");
 		for (int i = 1; i < strArr.length; i++) {
 			String[] keyValues = strArr[i].split(" ");
 			int keyLength = keyValues[0].length();
 			requestHeaders.put(keyValues[0].substring(0, keyLength-1), keyValues[1]); //keyLength - 1 so that you don't take the ':'
+			requestHeaders.put("Server", "COMP445-Server");
+			
+			// Get current date in GMT
+			Date now = new Date();
+			DateFormat df = new SimpleDateFormat("EEE, dd MMM YYYY HH:mm:ss");
+			df.setTimeZone(TimeZone.getTimeZone("GMT"));
+			requestHeaders.put("Date", df.format(now) + " GMT");
+			
+			// Add content type (default to text/html)
+			requestHeaders.put("Content-Type", "text/html");
+			requestHeaders.put("Connection", "close");
 		}
 	}
 
