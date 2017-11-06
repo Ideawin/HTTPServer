@@ -58,26 +58,26 @@ public class HTTPRequestHandler {
 			// Split into one string for request line and header, and another for the body
 			String[] strArr = request.split("\r\n\r\n");
 			if (strArr.length == 2) {
-				requestBody = strArr[1];
-			}
-			// Split a string into separate strings for each line
-			String[] requestLineAndHeaders = strArr[0].split("\r\n");
+				requestBody = strArr[1]; // 2nd part is the request body
 
-			// If there is only one line or less, it is not a valid request
-			if (requestLineAndHeaders.length <= 1) {
-				errorCode = getErrorCode(new BadRequestException());
-				statusLine = PROTOCOL + " "  + errorCode[0] + " " + errorCode[1];
-			}
-			else {
-				// Get all the headers
-				getHeaders(requestLineAndHeaders);
-				// Get the host
-				this.host = requestHeaders.get("Host");
-				requestHeaders.remove("Host");
-				// Parse the first line (request line)
-				getRequest(requestLineAndHeaders[0]);
-				// Parse request
-				parseRequest();
+				String[] requestLineAndHeaders = strArr[0].split("\r\n"); // 1st part is the request line with headers. Split this part into separate lines
+
+				// If there is only one line or less, it is not a valid request
+				if (requestLineAndHeaders.length <= 1) {
+					errorCode = getErrorCode(new BadRequestException());
+					statusLine = PROTOCOL + " "  + errorCode[0] + " " + errorCode[1];
+				}
+				else {
+					// Get all the headers
+					getHeaders(requestLineAndHeaders);
+					// Get the host and remove it from the list of headers
+					this.host = requestHeaders.get("Host");
+					requestHeaders.remove("Host");
+					// Parse the first line (request line)
+					getRequest(requestLineAndHeaders[0]);
+					// Parse request
+					parseRequest();
+				}
 			}
 		}
 		catch (Exception e) {
@@ -112,8 +112,9 @@ public class HTTPRequestHandler {
 	 * @param strArr array of header lines as String values
 	 */
 	public void getHeaders(String[] strArr) {
-		requestHeaders.put("Server", "Winnor");
+		requestHeaders.put("Server", "COMP445");
 		requestHeaders.put("Date", new Date().toString());
+		requestHeaders.put("Content-Type", "text/html");
 		requestHeaders.put("Connection", "close");
 		for (int i = 1; i < strArr.length; i++) {
 			String[] keyValues = strArr[i].split(" ");
