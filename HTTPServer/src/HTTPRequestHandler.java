@@ -1,4 +1,5 @@
 import java.util.HashMap;
+import java.util.TimeZone;
 
 import exception.BadRequestException;
 import exception.FileAccessDeniedException;
@@ -9,6 +10,10 @@ import exception.PathNotAllowedException;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class HTTPRequestHandler {
@@ -112,8 +117,15 @@ public class HTTPRequestHandler {
 	 * @param strArr array of header lines as String values
 	 */
 	public void getHeaders(String[] strArr) {
-		requestHeaders.put("Server", "COMP445");
-		requestHeaders.put("Date", new Date().toString());
+		requestHeaders.put("Server", "COMP445-Server");
+		
+		// Get current date in GMT
+		Date now = new Date();
+		DateFormat df = new SimpleDateFormat("EEE, dd MMM YYYY HH:mm:ss");
+		df.setTimeZone(TimeZone.getTimeZone("GMT"));
+		requestHeaders.put("Date", df.format(now) + " GMT");
+		
+		// Add content type (default to text/html)
 		requestHeaders.put("Content-Type", "text/html");
 		requestHeaders.put("Connection", "close");
 		for (int i = 1; i < strArr.length; i++) {
