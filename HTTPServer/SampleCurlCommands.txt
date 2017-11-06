@@ -1,0 +1,17 @@
+GET A LIST OF FILES AND FOLDERS:
+curl --verbose http://localhost/
+
+GET THE CONTENT OF A SMALL FILE
+curl --verbose http://localhost/test.txt
+
+GET THE CONTENT OF A LARGER FILE
+curl --verbose http://localhost/index.html
+
+GET THE CONTENT OF A INEXISTANT FILE
+curl --verbose http://localhost/faeaoijfewofnwe.gte
+
+POST TO WRITE A NEW FILE
+curl --verbose --data "some new data from curl" http://localhost/curlFile.txt
+
+POST TO UPDATE A FILE
+curl --verbose --data "some updated data from curl" http://localhost/curlFile.txt
