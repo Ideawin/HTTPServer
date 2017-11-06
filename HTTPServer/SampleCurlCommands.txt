@@ -1,17 +1,17 @@
 GET A LIST OF FILES AND FOLDERS:
-curl --verbose http://localhost/
+curl --verbose http://localhost:8080/
 
 GET THE CONTENT OF A SMALL FILE
-curl --verbose http://localhost/test.txt
+curl --verbose http://localhost:8080/test.txt
 
 GET THE CONTENT OF A LARGER FILE
-curl --verbose http://localhost/index.html
+curl --verbose http://localhost:8080/index.html
 
 GET THE CONTENT OF A INEXISTANT FILE
-curl --verbose http://localhost/faeaoijfewofnwe.gte
+curl --verbose http://localhost:8080/faeaoijfewofnwe.gte
 
 POST TO WRITE A NEW FILE
-curl --verbose --data "some new data from curl" http://localhost/curlFile.txt
+curl --verbose --data "some new data from curl" http://localhost:8080/curlFile.txt
 
 POST TO UPDATE A FILE
-curl --verbose --data "some updated data from curl" http://localhost/curlFile.txt
+curl --verbose --data "some updated data from curl" http://localhost:8080/curlFile.txt
