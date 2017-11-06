@@ -62,27 +62,28 @@ public class HTTPRequestHandler {
 		try {
 			// Split into one string for request line and header, and another for the body
 			String[] strArr = request.split("\r\n\r\n");
-			System.out.println(strArr[0]);
+			System.out.println(request);
 			if (strArr.length == 2) {
 				requestBody = strArr[1]; // 2nd part is the request body
-				String[] requestLineAndHeaders = strArr[0].split("\r\n"); // 1st part is the request line with headers. Split this part into separate lines
+				
+			}
+			String[] requestLineAndHeaders = strArr[0].split("\r\n"); // 1st part is the request line with headers. Split this part into separate lines
 
-				// If there is only one line or less, it is not a valid request
-				if (requestLineAndHeaders.length <= 1) {
-					errorCode = getErrorCode(new BadRequestException());
-					statusLine = PROTOCOL + " "  + errorCode[0] + " " + errorCode[1];
-				}
-				else {
-					// Get all the headers
-					getHeaders(requestLineAndHeaders);
-					// Get the host and remove it from the list of headers
-					this.host = requestHeaders.get("Host");
-					requestHeaders.remove("Host");
-					// Parse the first line (request line)
-					getRequest(requestLineAndHeaders[0]);
-					// Parse request
-					parseRequest();
-				}
+			// If there is only one line or less, it is not a valid request
+			if (requestLineAndHeaders.length <= 1) {
+				errorCode = getErrorCode(new BadRequestException());
+				statusLine = PROTOCOL + " "  + errorCode[0] + " " + errorCode[1];
+			}
+			else {
+				// Get all the headers
+				getHeaders(requestLineAndHeaders);
+				// Get the host and remove it from the list of headers
+				this.host = requestHeaders.get("Host");
+				requestHeaders.remove("Host");
+				// Parse the first line (request line)
+				getRequest(requestLineAndHeaders[0]);
+				// Parse request
+				parseRequest();
 			}
 		}
 		catch (Exception e) {
@@ -154,14 +155,16 @@ public class HTTPRequestHandler {
 					}
 				}
 				else {
-					String[] fileContent = new String[2];
-					fileContent = fileManager.getFile(fileManager.constructFile(this.requestURI));
-					System.out.println(fileContent[2]);// ex. for GET /dir/fileName
+					String[] fileContent = null;
+					fileContent = fileManager.getFile(fileManager.constructFile(this.requestURI)); // get the response body and last modified date
+					System.out.println(fileContent[1]);// ex. for GET /dir/fileName
+					
 					responseBody = fileContent[0];
 					String lastModified = fileContent[1];
 					String length = "" + responseBody.length();
-					requestHeaders.put("Content-Length", length); // set the Content-Length
+					
 					requestHeaders.put("Last-Modified", lastModified);
+					requestHeaders.put("Content-Length", length); // set the Content-Length
 					if (verbose) {
 						System.out.println("[DEBUG: Content of the file " + this.requestURI + " was successfully obtained.]\n");
 					}
