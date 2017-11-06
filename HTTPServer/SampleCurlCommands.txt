@@ -10,8 +10,14 @@ curl --verbose http://localhost:8080/index.html
 GET THE CONTENT OF A INEXISTANT FILE
 curl --verbose http://localhost:8080/faeaoijfewofnwe.gte
 
+GET EMPTY FOLDER (204 NO CONTENT)
+curl --verbose http://localhost:8080/sampleEmptyFolder/
+
 POST TO WRITE A NEW FILE
 curl --verbose --data "some new data from curl" http://localhost:8080/curlFile.txt
 
 POST TO UPDATE A FILE
 curl --verbose --data "some updated data from curl" http://localhost:8080/curlFile.txt
+
+POST WITH HEADER
+curl --verbose --data "some updated data with header" --header "MyHeader: MyHeaderValue" http://localhost:8080/curlFile.txt
